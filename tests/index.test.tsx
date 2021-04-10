@@ -1,29 +1,37 @@
 import Index from '../pages/index'
 import Router from 'next/router'
 import { render, screen, fireEvent } from './test-utils'
+import { loginWithEmail } from '../helpers/auth'
+
+beforeAll(() => {
+  jest.mock('next/router', () => ({
+    push: jest.fn(),
+  }))
+  jest.mock('../helpers/auth', () => ({
+    login: jest.fn(),
+  }))
+})
 
 it('have email and password form', () => {
   render(<Index />)
   screen.getByLabelText(/E-mail/i)
   screen.getByLabelText(/Password/i)
-  screen.getByText(/Login/i)
+  screen.getByRole('button')
 })
 
 it('can validate email address', () => {
   render(<Index />)
   const emailInput = screen.getByLabelText(/E-mail/i)
   fireEvent.input(emailInput, { target: { value: 'errorman' } })
-  fireEvent.click(screen.getByText('Login'))
+  fireEvent.click(screen.getByRole('button'))
   screen.getByText(/Invalid E-mail address/i)
 })
 
 it('can redirect once the login is good', () => {
-  jest.mock('next/router', () => {
-    jest.fn()
-  })
-  // TODO: Mock authentication
+  render(<Index />)
   fireEvent.input(screen.getByLabelText(/E-mail/i), { target: { value: 'valid@email.com' } })
   fireEvent.input(screen.getByLabelText(/Password/i), { target: { value: 'correct_password' } })
-  fireEvent.click(screen.getByText('Login'))
+  fireEvent.click(screen.getByRole('button'))
+  expect(loginWithEmail).toHaveBeenCalledWith(['valid@email.com', 'correct_password'])
   expect(Router.push).toHaveBeenCalledWith('/chat')
 })
