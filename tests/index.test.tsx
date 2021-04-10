@@ -1,22 +1,36 @@
 import Index from '../pages/index'
-import Router from 'next/router'
-import { render, screen, fireEvent } from './test-utils'
-import { loginWithEmail } from '../helpers/auth'
+import { render, screen, fireEvent, act } from './test-utils'
+import mockSdk from 'firebase-mock'
+
+const mockPush = jest.fn()
+
+jest.mock('../helpers/auth', () => ({
+  loginWithEmail: jest.fn().mockImplementation((email: string, password: string) => {
+    return new Promise<void>((resolve, reject) => {
+      if (email == 'errorman') {
+        reject({ code: 'auth/invalid-email' })
+      } else if (password == 'incorrect') {
+        reject({ code: 'auth/wrong-password' })
+      } else if (email == 'not@found.com') {
+        reject({ code: 'auth/user-not-found' })
+      } else {
+        resolve()
+      }
+    })
+  }),
+}))
+jest.mock('next/router', () => ({
+  push: jest.fn(),
+  useRouter: jest.fn(() => ({
+    push: mockPush,
+  })),
+}))
 
 beforeAll(() => {
-  jest.mock('next/router', () => ({
-    push: jest.fn(),
-  }))
-  jest.mock('../helpers/auth', () => ({
-    login: jest.fn().mockImplementation((email: string, password: string) => {
-      if (email == 'errorman') {
-        throw { code: 'auth/invalid-email' }
-      } else if (password == 'incorrect') {
-        throw { code: 'auth/wrong-password' }
-      } else if (email == 'not@found.com') {
-        throw { code: 'auth/user-not-found' }
-      }
-    }),
+  jest.mock('../helpers/firebase', () => ({
+    default: mockSdk,
+    auth: new mockSdk.MockAuthentication(),
+    database: new mockSdk.MockDatabase(),
   }))
 })
 
@@ -30,16 +44,19 @@ it('have email and password form', () => {
 it('can validate email address', () => {
   render(<Index />)
   const emailInput = screen.getByLabelText(/E-mail/i)
-  fireEvent.input(emailInput, { target: { value: 'errorman' } })
-  fireEvent.click(screen.getByRole('button'))
-  screen.getByText(/Invalid E-mail address/i)
+  act(() => {
+    fireEvent.change(emailInput, { target: { value: 'errorman' } })
+    fireEvent.click(screen.getByRole('button'))
+    screen.findByText(/Invalid E-mail address/i)
+  })
 })
 
 it('can redirect once the login is good', () => {
   render(<Index />)
-  fireEvent.input(screen.getByLabelText(/E-mail/i), { target: { value: 'valid@email.com' } })
-  fireEvent.input(screen.getByLabelText(/Password/i), { target: { value: 'correct_password' } })
-  fireEvent.click(screen.getByRole('button'))
-  expect(loginWithEmail).toHaveBeenCalledWith(['valid@email.com', 'correct_password'])
-  expect(Router.push).toHaveBeenCalledWith('/chat')
+  act(() => {
+    fireEvent.change(screen.getByLabelText(/E-mail/i), { target: { value: 'valid@email.com' } })
+    fireEvent.change(screen.getByLabelText(/Password/i), { target: { value: 'correct_password' } })
+    fireEvent.click(screen.getByRole('button'))
+    expect(mockPush).toHaveBeenCalled()
+  })
 })
