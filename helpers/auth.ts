@@ -1,5 +1,10 @@
+import firebase from 'firebase'
+import { auth } from './firebase'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function loginWithEmail(email: string, password: string): Promise<void> {
+export async function loginWithEmail(
+  email: string,
+  password: string
+): Promise<firebase.auth.UserCredential> {
   // TODO: Make the authentication real
-  throw new Error('Not implemented')
+  return auth.signInWithEmailAndPassword(email, password)
 }
