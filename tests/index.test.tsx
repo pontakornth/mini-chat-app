@@ -8,7 +8,15 @@ beforeAll(() => {
     push: jest.fn(),
   }))
   jest.mock('../helpers/auth', () => ({
-    login: jest.fn(),
+    login: jest.fn().mockImplementation((email: string, password: string) => {
+      if (email == 'errorman') {
+        throw { code: 'auth/invalid-email' }
+      } else if (password == 'incorrect') {
+        throw { code: 'auth/wrong-password' }
+      } else if (email == 'not@found.com') {
+        throw { code: 'auth/user-not-found' }
+      }
+    }),
   }))
 })
 
