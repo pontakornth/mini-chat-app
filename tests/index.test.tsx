@@ -57,6 +57,6 @@ it('can redirect once the login is good', () => {
     fireEvent.change(screen.getByLabelText(/E-mail/i), { target: { value: 'valid@email.com' } })
     fireEvent.change(screen.getByLabelText(/Password/i), { target: { value: 'correct_password' } })
     fireEvent.click(screen.getByRole('button'))
-    expect(mockPush).toHaveBeenCalled()
   })
+  expect(mockPush).toHaveBeenCalledWith('/chat')
 })
