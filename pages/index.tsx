@@ -19,7 +19,8 @@ export default function Home(): JSX.Element {
   const handleChangePassword = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setPassword(e.target.value)
   }
-  const login = (): void => {
+  const login = (e: React.MouseEvent<HTMLButtonElement>): void => {
+    e.preventDefault()
     loginWithEmail(email, password)
       .then(() => {
         router.push('/chat')
@@ -32,6 +33,7 @@ export default function Home(): JSX.Element {
             setEmailErrorMsg('Invalid E-mail address')
             break
           case 'auth/user-not-found':
+            console.log('User not found')
             setEmailErrorMsg('User not found')
             break
           case 'auth/wrong-password':
@@ -47,12 +49,12 @@ export default function Home(): JSX.Element {
       </Head>
       <Flex flexFlow="column" as="form" p={4}>
         <Heading mb={4}>Login</Heading>
-        <FormControl id="email">
+        <FormControl isInvalid={!!emailErrorMsg} id="email">
           <FormLabel>E-mail</FormLabel>
           <Input value={email} onChange={handleChangeEmail} type="email" />
-          <FormErrorMessage>{emailErrorMsg}</FormErrorMessage>
+          {emailErrorMsg && <FormErrorMessage>{emailErrorMsg}</FormErrorMessage>}
         </FormControl>
-        <FormControl id="password">
+        <FormControl isInvalid={!!passwordErrorMsg} id="password">
           <FormLabel>Password</FormLabel>
           <Input value={password} onChange={handleChangePassword} type="password" />
           <FormErrorMessage>{passwordErrorMsg}</FormErrorMessage>

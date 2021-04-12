@@ -46,6 +46,18 @@ it('can validate email address', () => {
     fireEvent.change(emailInput, { target: { value: 'errorman' } })
     fireEvent.click(screen.getByRole('button'))
   })
+  screen.findByText(/Wrong password/i)
+})
+
+it('have error when wrong password is used', () => {
+  render(<Index />)
+  const emailInput = screen.getByLabelText(/E-mail/i)
+  const passwordInput = screen.getByLabelText(/Password/i)
+  act(() => {
+    fireEvent.change(emailInput, { target: { value: 'errorman' } })
+    fireEvent.change(passwordInput, { target: { value: 'incorrect' } })
+    fireEvent.click(screen.getByRole('button'))
+  })
   screen.findByText(/Invalid E-mail address/i)
 })
 
