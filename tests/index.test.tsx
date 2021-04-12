@@ -26,13 +26,11 @@ jest.mock('next/router', () => ({
   })),
 }))
 
-beforeAll(() => {
-  jest.mock('../helpers/firebase', () => ({
-    default: mockSdk,
-    auth: new mockSdk.MockAuthentication(),
-    database: new mockSdk.MockDatabase(),
-  }))
-})
+jest.mock('../helpers/firebase', () => ({
+  default: mockSdk,
+  auth: new mockSdk.MockAuthentication(),
+  database: new mockSdk.MockDatabase(),
+}))
 
 it('have email and password form', () => {
   render(<Index />)
@@ -47,8 +45,8 @@ it('can validate email address', () => {
   act(() => {
     fireEvent.change(emailInput, { target: { value: 'errorman' } })
     fireEvent.click(screen.getByRole('button'))
-    screen.findByText(/Invalid E-mail address/i)
   })
+  screen.findByText(/Invalid E-mail address/i)
 })
 
 it('can redirect once the login is good', () => {
