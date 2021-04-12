@@ -30,6 +30,12 @@ it('can send you to the chat room', () => {
     fireEvent.change(roomNumberInput, { target: { value: '1234' } })
     fireEvent.click(screen.getByRole('button'))
   })
+  expect(mockPush).toHaveBeenCalledWith('/chat/1234')
 })
 
-// TODO: Authentication test. I need to mock the Firebase somehow.
+/*
+TODO:
+  - If user is not authenticated, it will redirect to /
+  - Validation of chat room id structure
+  - Ability to create or join actual chat
+*/
