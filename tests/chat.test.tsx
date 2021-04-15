@@ -12,7 +12,6 @@ jest.mock('next/router', () => ({
 }))
 
 jest.mock('../helpers/firebase', () => ({
-  default: mockSdk,
   auth: new mockSdk.MockAuthentication(),
   database: new mockSdk.MockDatabase(),
 }))
